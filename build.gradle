@@ -1,0 +1,38 @@
+plugins {
+    id "java"
+    id "org.springframework.boot" version "1.5.3.RELEASE"
+}
+
+repositories {
+    jcenter()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Dalston.SR1'
+    }
+}
+
+test.testLogging {
+    displayGranularity 1
+    showStandardStreams = true
+    events "STARTED", "PASSED", "FAILED", "SKIPPED"
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok:1.16.12'
+    testCompileOnly 'org.projectlombok:lombok:1.16.12'
+
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-jdbc'
+    compile 'org.springframework.boot:spring-boot-starter-data-redis'
+    compile 'org.springframework.cloud:spring-cloud-starter-ribbon'
+    compile 'org.springframework.cloud:spring-cloud-starter-feign'
+
+    compile 'org.postgresql:postgresql:9.4.1212'
+
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'org.testcontainers:postgresql:1.2.1'
+    testCompile 'org.mock-server:mockserver-client-java:3.10.7'
+
+}
