@@ -32,7 +32,7 @@ dependencies {
     compile 'org.postgresql:postgresql:9.4.1212'
 
     testCompile 'org.springframework.boot:spring-boot-starter-test'
-    testCompile 'org.testcontainers:postgresql:1.2.1'
+    testCompile 'org.testcontainers:postgresql:1.4.2'
     testCompile 'org.mock-server:mockserver-client-java:3.10.7'
 
 }

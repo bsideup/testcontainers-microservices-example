@@ -1,5 +1,6 @@
 package org.testcontainers.example.demo.support;
 
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.mockserver.client.server.ForwardChainExpectation;
@@ -8,7 +9,6 @@ import org.mockserver.matchers.Times;
 import org.mockserver.model.HttpRequest;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.shaded.com.github.dockerjava.api.command.InspectContainerResponse;
 
 @Slf4j
 public class MockServerContainer extends GenericContainer<MockServerContainer> {

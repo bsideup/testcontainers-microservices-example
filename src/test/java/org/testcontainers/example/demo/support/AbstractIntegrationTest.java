@@ -1,40 +1,86 @@
 package org.testcontainers.example.demo.support;
 
-import org.junit.ClassRule;
+import lombok.val;
+import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.util.Pair;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.GenericContainer;
 
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.util.Collections.singletonList;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = AbstractIntegrationTest.Initializer.class)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {
+                "spring.datasource.driverClassName=org.testcontainers.jdbc.ContainerDatabaseDriver",
+                "spring.datasource.url=jdbc:tc:postgresql:///mil.ru",
+        }
+)
 public class AbstractIntegrationTest {
 
-    @ClassRule
     public static GenericContainer redis = new GenericContainer("redis:3.0.6")
             .withExposedPorts(6379);
 
-    @ClassRule
     public static MockServerContainer mockServer = new MockServerContainer();
 
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    static {
+        Stream.of(redis, mockServer).parallel().forEach(GenericContainer::start);
 
-        @Override
-        public void initialize(ConfigurableApplicationContext ctx) {
-            EnvironmentTestUtils.addEnvironment("testcontainers", ctx.getEnvironment(),
-                    "spring.redis.host=" + redis.getContainerIpAddress(),
-                    "spring.redis.port=" + redis.getMappedPort(6379),
+        System.setProperty("spring.redis.host", redis.getContainerIpAddress());
+        System.setProperty("spring.redis.port", redis.getFirstMappedPort() + "");
 
-                    "spring.datasource.driverClassName=org.testcontainers.jdbc.ContainerDatabaseDriver",
-                    "spring.datasource.url=jdbc:tc:postgresql:///ssu.gov.ua",
+        System.setProperty("geo-service.ribbon.listOfServers", mockServer.getContainerIpAddress() + ":" + mockServer.getFirstMappedPort());
+    }
 
-                    "geo-service.ribbon.listOfServers=" + mockServer.getContainerIpAddress() + ":" + mockServer.getMappedPort(80)
-            );
-        }
+    @Autowired
+    protected StringRedisTemplate redisTemplate;
+
+    @Autowired
+    protected TestRestTemplate restTemplate;
+
+    @Autowired
+    protected JdbcTemplate jdbcTemplate;
+
+    protected String sessionId = UUID.randomUUID().toString();
+
+    @Before
+    public void setUpRestTemplate() {
+        // Prepare REST template
+        restTemplate.getRestTemplate().setInterceptors(singletonList(
+                (request, body, execution) -> {
+                    request.getHeaders().add(AUTHORIZATION, sessionId);
+                    return execution.execute(request, body);
+                }
+        ));
+    }
+
+    protected Long createUser(String name, Pair<Double, Double> coordinates) {
+        val holder = new GeneratedKeyHolder();
+        jdbcTemplate.update(
+                it -> {
+                    val stmt = it.prepareStatement(
+                            "INSERT INTO users (name, latitude, longitude) VALUES (?, ?, ?) RETURNING id",
+                            RETURN_GENERATED_KEYS
+                    );
+                    stmt.setString(1, name);
+                    stmt.setDouble(2, coordinates.getFirst());
+                    stmt.setDouble(3, coordinates.getSecond());
+                    return stmt;
+                },
+                holder
+        );
+        return holder.getKey().longValue();
     }
 }
