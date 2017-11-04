@@ -24,6 +24,13 @@ public class DemoApplicationTests extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testUnknownUser() {
+        val entity = restTemplate.getForEntity("/me/city", GeoResponse.class);
+
+        assertThat(entity.getStatusCode().is5xxServerError()).isTrue();
+    }
+
+    @Test
     public void testKnownUser() {
         // Prepare session
         redisTemplate.opsForValue().set("sessions/" + sessionId, userId + "");
@@ -44,12 +51,5 @@ public class DemoApplicationTests extends AbstractIntegrationTest {
         assertThat(city)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("city", "Saint-Petersburg");
-    }
-
-    @Test
-    public void testUnknownUser() {
-        val entity = restTemplate.getForEntity("/me/city", GeoResponse.class);
-
-        assertThat(entity.getStatusCode().is5xxServerError()).isTrue();
     }
 }

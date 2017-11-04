@@ -20,6 +20,13 @@ test.testLogging {
 }
 
 dependencies {
+
+    modules {
+        module("org.apache.commons:commons-io") {
+            replacedBy("commons-io:commons-io")
+        }
+    }
+
     compileOnly 'org.projectlombok:lombok:1.16.12'
     testCompileOnly 'org.projectlombok:lombok:1.16.12'
 
@@ -32,7 +39,7 @@ dependencies {
     compile 'org.postgresql:postgresql:9.4.1212'
 
     testCompile 'org.springframework.boot:spring-boot-starter-test'
-    testCompile 'org.testcontainers:postgresql:1.4.2'
+    testCompile 'org.testcontainers:postgresql:1.4.3'
     testCompile 'org.mock-server:mockserver-client-java:3.10.7'
 
 }
