@@ -28,7 +28,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
                 "spring.datasource.url=jdbc:tc:postgresql:///mil.ru",
         }
 )
-public class AbstractIntegrationTest {
+public abstract class AbstractIntegrationTest {
 
     public static GenericContainer redis = new GenericContainer("redis:3.0.6")
             .withExposedPorts(6379);

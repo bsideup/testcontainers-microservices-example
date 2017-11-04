@@ -1,6 +1,11 @@
 CREATE TABLE users (
+
     id SERIAL PRIMARY KEY,
-    name VARCHAR(64) NOT NULL, -- 64 charts should be enough, right?
-    latitude DOUBLE PRECISION NOT NULL,
-    longitude DOUBLE PRECISION NOT NULL
+
+    name VARCHAR(64) NOT NULL,
+
+    -- REAL should be enough, right?
+    latitude REAL NOT NULL,
+
+    longitude REAL NOT NULL -- TODO ask our team lead
 );

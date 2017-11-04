@@ -1,7 +1,10 @@
 <configuration>
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="com.netflix" level="WARN"/>
     <logger name="org.testcontainers" level="INFO"/>
     <logger name="org.testcontainers.shaded.com.github.dockerjava.core.async.ResultCallbackTemplate" level="OFF"/>
 </configuration>

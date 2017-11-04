@@ -13,10 +13,12 @@ dependencyManagement {
     }
 }
 
-test.testLogging {
-    displayGranularity 1
-    showStandardStreams = true
-    events "STARTED", "PASSED", "FAILED", "SKIPPED"
+test {
+    outputs.upToDateWhen { false }
+    testLogging {
+        displayGranularity 1
+        events "STARTED", "PASSED", "FAILED", "SKIPPED"
+    }
 }
 
 dependencies {
@@ -37,9 +39,11 @@ dependencies {
     compile 'org.springframework.cloud:spring-cloud-starter-feign'
 
     compile 'org.postgresql:postgresql:9.4.1212'
+    compile 'mysql:mysql-connector-java:6.0.6'
 
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'org.testcontainers:postgresql:1.4.3'
+    testCompile 'org.testcontainers:mysql:1.4.3'
     testCompile 'org.mock-server:mockserver-client-java:3.10.7'
 
 }

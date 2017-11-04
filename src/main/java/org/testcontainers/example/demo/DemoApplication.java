@@ -1,5 +1,6 @@
 package org.testcontainers.example.demo;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +20,18 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @SpringBootApplication
 @EnableFeignClients
 @RestController
+@RequiredArgsConstructor
 public class DemoApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
 
-    @Autowired
-    StringRedisTemplate redisTemplate;
+    final StringRedisTemplate redisTemplate;
 
-    @Autowired
-    JdbcTemplate jdbcTemplate;
+    final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    GeoClient geoClient;
+    final GeoClient geoClient;
 
     @GetMapping("/me/city")
     public GeoClient.GeoResponse getMyCity(@RequestHeader(AUTHORIZATION) String sessionId) {
@@ -45,7 +44,7 @@ public class DemoApplication {
                 Stream.of(userId).toArray(),
 
                 // REST call in RowMapper? Sure... IT'S A MICRO-SERVICE!!1
-                (it, i) -> geoClient.getCity(it.getDouble(1), it.getDouble(2))
+                (row, i) -> geoClient.getCity(row.getDouble(1), row.getDouble(2))
         );
     }
 
