@@ -8,7 +8,7 @@ import org.mockserver.client.server.MockServerClient;
 import org.mockserver.matchers.Times;
 import org.mockserver.model.HttpRequest;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.output.OutputFrame;
 
 @Slf4j
 public class MockServerContainer extends GenericContainer<MockServerContainer> {
@@ -18,7 +18,27 @@ public class MockServerContainer extends GenericContainer<MockServerContainer> {
         withCommand("/opt/mockserver/run_mockserver.sh -logLevel INFO -serverPort 80");
         addExposedPorts(80);
 
-        withLogConsumer(new Slf4jLogConsumer(log));
+        withLogConsumer(outputFrame -> {
+            if (outputFrame != null) {
+                String utf8String = outputFrame.getUtf8String();
+
+                if (utf8String != null) {
+                    OutputFrame.OutputType outputType = outputFrame.getType();
+                    String message = utf8String.trim();
+
+                    switch (outputType) {
+                        case END:
+                            break;
+                        case STDOUT:
+                        case STDERR:
+                            System.out.println(message);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unexpected outputType " + outputType);
+                    }
+                }
+            }
+        });
     }
 
     @Getter
