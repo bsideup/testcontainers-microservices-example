@@ -4,8 +4,7 @@ CREATE TABLE users (
 
     name VARCHAR(64) NOT NULL,
 
-    -- REAL should be enough, right?
-    latitude REAL NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
 
-    longitude REAL NOT NULL -- TODO ask our team lead
+    longitude DOUBLE PRECISION NOT NULL
 );
